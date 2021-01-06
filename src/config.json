@@ -10,8 +10,8 @@
   "methods": [
     {
       "name": "STATUS_UPDATE_WEBHOOK",
-      "route": "post /webhook/monday/alert",
-      "viewName": "Monday alert webhook",
+      "route": "post /webhook/monday/board",
+      "viewName": "Monday board change webhook",
       "params": [
         {
           "name": "BOARD_ID",
