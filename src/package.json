@@ -1,0 +1,11 @@
+{
+  "name": "kaholo-trigger-monday",
+  "version": "1.1.0",
+  "description": "Kaholo Trigger for Monday",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kaholo Group",
+  "license": "ISC"
+}

@@ -1,0 +1,24 @@
+{
+  "name": "monday-trigger",
+  "type": "trigger",
+  "execProgram": "node",
+  "main": "app.js",
+  "exposeRoute": true,
+  "imgUrl": "monday.png",
+  "version": "1.1.0",
+  "description": "Handle Monday Webhooks",
+  "methods": [
+    {
+      "name": "STATUS_UPDATE_WEBHOOK",
+      "route": "post /webhook/monday/board",
+      "viewName": "Board Change",
+      "params": [
+        {
+          "name": "BOARD_ID",
+          "viewName": "Board ID",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}
