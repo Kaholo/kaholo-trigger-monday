@@ -1,40 +1,39 @@
-const config = require("./config");
-const mapExecutionService = require("../../../api/services/map-execution.service");
-const Trigger = require("../../../api/models/map-trigger.model");
+const { findTriggers } = require('./helpers')
 
 function statusUpdateWebhook(req,res) {
-    let body = req.body
-    if (req.body.challenge) {
-        res.json(req.body)
+    const body = req.body;
+    // Monday sends a 'challenge' post request when connecting a new webhook
+    if (body.hasOwnProperty("challenge")){ 
+        res.send(body); // send challenge back to monday
+        return;
     }
-    else {
-        Trigger.find({ plugin: config.name }).then((triggers) => {
-            console.log(`Found ${triggers.length} triggers`);
-            res.send('OK');
-            triggers.forEach(trigger=>execTrigger(trigger,body,req.io))
-        }).catch((error) => res.send(error))
+
+    const boardID = body.event.boardId; // Get board ID
+    const eventType = body.event.type; // Get event type
+    if (!eventType || !boardID){
+        throw "bad monday update format";
     }
+
+    findTriggers(
+        validateTrigger, { boardID },
+        res, req,
+        "STATUS_UPDATE_WEBHOOK",
+        eventType // event description for kaholo
+    );
+    
 }
 
-function execTrigger (trigger, body, io) {
-    new Promise ((resolve,reject) => {
-        const boardId = body.event.boardId;
-        const triggerBoardId = trigger.params.find(o => o.name === 'BOARD_ID');
-        if (triggerBoardId.value != boardId) {
-            console.log(borderId);
-            return reject("Not matching border ID");
-        } else {
-            return resolve()
-        }
-    }).then(() => {
-        console.log(trigger.map);
-        let message = trigger.name + ' started by Monday trigger'
-        console.log(`********** Monday: executing map ${trigger.map} **********`);
-        mapExecutionService.execute(trigger.map,null,io,{config: trigger.configuration},message,body);
-    }).catch(err=>{
-        console.error(err);
-    })
+async function validateTrigger(trigger, { boardID }) {
+    const triggerBoardID = (trigger.params.find((o) => o.name === "BOARD_ID").value || "").trim();
+    /**
+     * if board ID was provided check it matches board ID in post request
+     */
+    if (triggerBoardID && triggerBoardID != boardID) {
+      throw "Not same board ID";
+    }
+    return true;
 }
+
 module.exports = {
     STATUS_UPDATE_WEBHOOK: statusUpdateWebhook
 }
